@@ -1,0 +1,17 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set the default font family for the app */
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  background-color: #f4f4f4; /* Light background color */
+  color: #333; /* Dark text for readability */
+  padding: 0;
+  margin: 0;
+}
