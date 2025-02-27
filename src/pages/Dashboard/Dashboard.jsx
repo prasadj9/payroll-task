@@ -1,8 +1,12 @@
 import React from 'react'
+import AddTaskForm from '../MyTask/AddTaskForm'
 
 const Dashboard = () => {
   return (
-    <div>Dashboard</div>
+    <div>Dashboard
+
+      <AddTaskForm/>
+    </div>
   )
 }
 
