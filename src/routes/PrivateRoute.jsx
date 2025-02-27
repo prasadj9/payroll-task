@@ -1,8 +1,10 @@
 import React from 'react'
+import { getToken } from './../utils/utils';
+import {Navigate} from "react-router-dom"
 
-const PrivateRoute = () => {
+const PrivateRoute = ({component : Component}) => {
   return (
-    <div>PrivateRoute</div>
+    getToken() ? Component : <Navigate to="/login" />
   )
 }
 

@@ -1,8 +1,7 @@
-import React from 'react'
 
-const PublicRoute = () => {
+const PublicRoute = ({component : Componennt}) => {
   return (
-    <div>PublicRoute</div>
+    <div>{Componennt}</div>
   )
 }
 

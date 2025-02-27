@@ -5,6 +5,8 @@ import PreLogin from "./layout/PreLogin/PreLogin";
 import PublicRoute from "./routes/PublicRoute";
 import PrivateRoute from "./routes/PrivateRoute";
 const LazyLogin = lazy(() => import("./pages/Login"));
+const LazyPostLogin = lazy(() => import("./layout/PostLogin/PostLogin"));
+const LazyDashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
 
 
 export const router = createBrowserRouter([
@@ -23,9 +25,15 @@ export const router = createBrowserRouter([
   },
   {
     element : (
-        <PrivateRoute component={</>}  >
+        <PrivateRoute component={<LazyPostLogin/>}  >
 
         </PrivateRoute>
-    )
-  }
+    ),
+    children : [
+      {
+        path : PATH.DASHBOARD,
+        element : <LazyDashboard/>
+      }
+    ]
+  },
 ]);

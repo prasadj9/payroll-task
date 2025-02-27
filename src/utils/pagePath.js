@@ -1,4 +1,6 @@
 export const PATH = {
     DEFAULT : "/",
-    LOGIN : "/login"
+    LOGIN : "/login",
+    DASHBOARD : "/dashboard",
+    MYTASK : "/mytask"
 }

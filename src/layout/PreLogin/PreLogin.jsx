@@ -1,9 +1,14 @@
-import React from 'react'
+import { Suspense } from "react";
+import { Outlet } from "react-router-dom";
 
 const PreLogin = () => {
   return (
-    <div>PreLogin</div>
-  )
-}
+    <div>
+      <Suspense fallback={"Dev"}>
+        <Outlet />
+      </Suspense>
+    </div>
+  );
+};
 
-export default PreLogin
+export default PreLogin;
