@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { privateRequest } from "./../../services/privateRequest";
+import { TASK } from "../../services/endPoints";
 
 const initialState = {
   team: {},
@@ -15,7 +16,7 @@ export const fetchTasks = createAsyncThunk(
   "task/fetchTasks",
   async (payload) => {
     try {
-      const response = await privateRequest.get("/task", payload);
+      const response = await privateRequest.post(TASK, payload);
       if (response.data?.status === 404) {
         return {
           tasks: [],
@@ -25,9 +26,9 @@ export const fetchTasks = createAsyncThunk(
       }
 
       return {
-        tasks: response.data.data.taskList,
-        comments: response.data.data.comments,
-        totalCount: response.data.data.totalCount,
+        tasks: response.data.data.TaskList,
+        comments: response.data.data.CommentList,
+        totalCount: response.data.data.TotalCount,
       };
     } catch (error) {
       console.log(error);

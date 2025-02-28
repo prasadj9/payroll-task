@@ -8,7 +8,7 @@ const PostLogin = () => {
     <div>PostLogin
       <TopBar/>
 
-      <LeftSidebar/>
+      {/* <LeftSidebar/> */}
       <Outlet/>
     </div>
   )
