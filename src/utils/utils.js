@@ -3,6 +3,10 @@ export const getToken = () => {
     return localStorage.getItem("token");
   };
 
+  export const clearToken = () => {
+    return localStorage.removeItem("token");
+  };
+
 
   export function getStatus(num) {
     switch (num) {

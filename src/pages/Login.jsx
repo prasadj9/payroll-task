@@ -25,7 +25,7 @@ const Login = () => {
 
     // Base64 encode the combined string
     const base64Encoded = btoa(combined);
-    if(res.data.success)
+    // if(res.data.success)
     localStorage.setItem("token", base64Encoded);
     localStorage.setItem("userId", res.data.userId);
     reset();

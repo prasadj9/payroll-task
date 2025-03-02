@@ -1,0 +1,103 @@
+// /* Sidebar.scss */
+// .sidebar {
+//     position: fixed;
+//     top: 0;
+//     left: 0;
+//     height: 100%;
+//     width: 240px;
+//     background-color: #3f51b5;
+//     color: white;
+//     display: flex;
+//     flex-direction: column;
+//     padding-top: 20px;
+//   }
+  
+//   .sidebar .MuiDrawer-paper {
+//     background-color: #3f51b5;
+//     color: white;
+//     border-right: 1px solid #ddd;
+//     padding-top: 20px;
+//     width: 240px;
+//     position: relative;
+//   }
+  
+//   .sidebar .MuiDrawer-paper & {
+//     transition: transform 0.3s ease-in-out;
+//   }
+  
+//   .sidebar .MuiListItem-root {
+//     display: flex;
+//     align-items: center;
+//     padding: 10px;
+//     cursor: pointer;
+//     &:hover {
+//       background-color: rgba(255, 255, 255, 0.1);
+//     }
+//   }
+  
+//   .sidebar .MuiListItemIcon-root {
+//     min-width: 40px;
+//   }
+  
+//   @media screen and (max-width: 768px) {
+//     .sidebar {
+//       display: none;
+//     }
+//   }
+  
+//   @media screen and (max-width: 768px) {
+//     .MuiDrawer-paper {
+//       width: 60%; /* Adjust width for mobile */
+//     }
+//   }
+  
+  $primary-color: #A294F9;
+
+  .main_container {
+    display: flex;
+    height: 100%;
+    .rightSideContainer {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow-y: hidden;
+      background-color: #f2f2f3;
+  
+      .outlet_content {
+        width: 100%;
+        border-radius: 10px;
+        padding: 7px 15px;
+        // overflow-x: hidden !important;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+          width: 9px;
+        }
+  
+        &::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          /* Color of the scrollbar track */
+        }
+  
+        &::-webkit-scrollbar-thumb {
+          background: $primary-color;
+          /* Color of the scrollbar thumb */
+          border-radius: 10px;
+          /* Rounded corners */
+          border: 3px solid transparent;
+          /* Adds space around the thumb */
+          background-clip: padding-box;
+          /* To show the transparent border */
+        }
+  
+        &::-webkit-scrollbar-thumb {
+          z-index: 200000 !important;
+          /* Max z-index for the scrollbar thumb */
+        }
+  
+        &::-webkit-scrollbar-track {
+          z-index: 9998 !important;
+          /* Max z-index for the scrollbar track */
+        }
+      }
+    }
+  }

@@ -8,6 +8,9 @@ const LazyLogin = lazy(() => import("./pages/Login"));
 const LazyPostLogin = lazy(() => import("./layout/PostLogin/PostLogin"));
 const LazyDashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
 const LazyMyTask = lazy(() => import("./pages/MyTask/MyTask"));
+const LazyMyTeam = lazy(() => import("./pages/MyTeam"));
+const LazyBilling = lazy(() => import("./pages/Billing"));
+const LazySettings = lazy(() => import("./pages/Settings"));
 
 
 export const router = createBrowserRouter([
@@ -38,6 +41,18 @@ export const router = createBrowserRouter([
       {
         path : PATH.MYTASK,
         element : <LazyMyTask/>
+      },
+      {
+        path : PATH.MYTEAM,
+        element : <LazyMyTeam/>
+      },
+      {
+        path : PATH.BILLING,
+        element : <LazyBilling/>
+      },
+      {
+        path : PATH.SETTINGS,
+        element : <LazySettings/>
       },
     ]
   },
