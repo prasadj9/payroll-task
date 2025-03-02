@@ -1,45 +1,12 @@
-import { AppProvider } from "@toolpad/core/AppProvider"
-import { DashboardLayout } from "@toolpad/core/DashboardLayout"
-import { useDemoRouter } from "@toolpad/core/internal"
-import {sideBarNavigation} from "../../utils/sideBarNavigation"
-import { Box, Chip, Stack, Tooltip, Typography } from "@mui/material";
+import { DashboardLayout } from "@toolpad/core/DashboardLayout";
+import { Chip, createTheme, Stack, Tooltip, Typography } from "@mui/material";
 
-import CloudCircleIcon from '@mui/icons-material/CloudCircle';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-
-const Navigation = [
-  {
-    kind: 'header',
-    title: 'Main items',
-  },
-  {
-    segment: 'dashboard',
-    title: 'Dashboard',
-    icon: <DashboardIcon />,
-  },
-  {
-    segment: 'orders',
-    title: 'Orders',
-    icon: <DashboardIcon />,
-  },
-];
-
-function DemoPageContent({ pathname }) {
-  return (
-    <Box
-      sx={{
-        py: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-      }}
-    >
-      <Typography>Dashboard content for {pathname}</Typography>
-    </Box>
-  );
-}
+import CloudCircleIcon from "@mui/icons-material/CloudCircle";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { Outlet, useNavigate } from "react-router-dom";
+import { ReactRouterAppProvider } from "@toolpad/core/react-router";
+import { sideBarNavigation } from "../../utils/sideBarNavigation";
+import React, { useState } from "react";
 
 function CustomAppTitle() {
   return (
@@ -54,20 +21,52 @@ function CustomAppTitle() {
   );
 }
 
-const PostLogin = ({children}) => {
+const PostLogin = () => {
 
-  const router = useDemoRouter('/dashboard');
-  
+  const [session, setSession] = useState({
+    user: {
+      name: 'ABC',
+      email: 'abc@outlook.com',
+      image: 'https://avatar.iran.liara.run/public/47'}
+  })
+
+  const navigate = useNavigate()
+  const authentication = React.useMemo(() => {
+    return {
+      signIn: () => {
+        // setSession({
+        //   user: {
+        //     name: 'Bharat Kashyap',
+        //     email: 'abc@outlook.com',
+        //     image: 'https://avatar.iran.liara.run/public/47',
+        //   },
+        // });
+        navigate("/login")
+      },
+      signOut: () => {
+        setSession(null);
+        navigate("/login")
+      },
+    };
+  }, []);
+
+  const theme = createTheme({
+    palette: {
+      mode: 'light', // Set the mode to light
+    },
+  });
+
   return (
     <>
-      <AppProvider navigation={Navigation} router={router} >
-        <DashboardLayout slotProps={{
-          appTitle : CustomAppTitle,
-
-        }} >
-            <DemoPageContent pathname={router.pathname}  />
+      <ReactRouterAppProvider navigation={sideBarNavigation} session={session} authentication={authentication} theme={theme}>
+        <DashboardLayout
+          slotProps={{
+            appTitle: CustomAppTitle,
+          }}
+        >
+          <Outlet />
         </DashboardLayout>
-      </AppProvider>
+      </ReactRouterAppProvider>
     </>
   );
 };
