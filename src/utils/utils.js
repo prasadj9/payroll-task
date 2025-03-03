@@ -17,6 +17,6 @@ export const getToken = () => {
       case -1:
         return { color: "red", text: "Not Accepted" }
       default:
-        return { color: "blue", text: `Partial Complete (${25}%)` }
+        return { color: "blue", text: `Partial Complete (${num}%)` }
     }
   }

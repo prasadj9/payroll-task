@@ -1,124 +1,187 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
+import { ButtonGroup, IconButton, Paper } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    IconButton,
-    TablePagination,
-  } from "@mui/material";
-  import { ThumbUp, BarChart, Delete, CheckCircle, AccessTime } from "@mui/icons-material";
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchTasks } from '../../store/slices/taskSlice';
-import dayjs from './../../../node_modules/dayjs/esm/index';
-import { getStatus } from '../../utils/utils';
-  
+  ThumbUp,
+  BarChart,
+  Delete,
+  CheckCircle,
+  AccessTime,
+  DeleteForeverOutlined,
+  ThumbUpAltOutlined,
+  CheckCircleOutlineOutlined,
+  CheckCircleOutline,
+  ArchiveOutlined,
+  BarChartOutlined,
+} from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteTask, fetchTasks } from "../../store/slices/taskSlice";
+import { getStatus } from "../../utils/utils";
+import dayjs from "dayjs";
 
-const taskData = [
-    { title: "Outside geofence test : Make a Phone call", customer: "VishalCustomer Murudkar", assignedBy: "Rijo Varghese", assignedDate: "27 Feb 2025", dueDate: "28 Feb 2025", priority: "High", status: "Not Accepted" },
-    { title: "Outside geofence test", customer: "-", assignedBy: "Rijo Varghese", assignedDate: "27 Feb 2025", dueDate: "28 Feb 2025", priority: "High", status: "Not Accepted" },
-    { title: "asads", customer: "ArchiveTest", assignedBy: "Rijo Varghese", assignedDate: "11 Feb 2025", dueDate: "25 Feb 2025", priority: "High", status: "Accepted" },
-    { title: "asd", customer: "ArchiveTest", assignedBy: "Rijo Varghese", assignedDate: "11 Feb 2025", dueDate: "25 Feb 2025", priority: "High", status: "Accepted" },
-    { title: "test", customer: "ArchiveTest", assignedBy: "Rijo Varghese", assignedDate: "11 Feb 2025", dueDate: "28 Feb 2025", priority: "High", status: "Completed" },
-    { title: "dsvdv", customer: "OmkarTest2", assignedBy: "Rijo Varghese", assignedDate: "07 Feb 2025", dueDate: "07 Feb 2025", priority: "Low", status: "Not Accepted" },
-    { title: "sadas", customer: "My company 2", assignedBy: "Rijo Varghese", assignedDate: "29 Jan 2025", dueDate: "29 Jan 2025", priority: "High", status: "Not Accepted" },
-    { title: "aa", customer: "My company 2", assignedBy: "Rijo Varghese", assignedDate: "29 Jan 2025", dueDate: "29 Jan 2025", priority: "High", status: "Not Accepted" },
-    { title: "Jayesh", customer: "My company 2", assignedBy: "Rijo Varghese", assignedDate: "29 Jan 2025", dueDate: "29 Jan 2025", priority: "High", status: "Not Accepted" },
-  ];
+const DEFAULT_PAGE_NO = 0;
+const rowsPerPage = [10, 25, 50, 100];
 
 const TaskTable = () => {
-    const [page, setPage] = useState(0)
-    const {tasks, totalCount} = useSelector((state) => state.task)
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+  const { tasks, totalCount } = useSelector((state) => state.task);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: rowsPerPage[0],
+    page: DEFAULT_PAGE_NO,
+  });
 
-    const formatDate = (date) => {
-        return dayjs(date).format("YYYY-MM-DD");
-    }
+  const onPaginationModelChange = (value) => {
+    fetchAllTasks({
+      pageNo:
+        paginationModel.pageSize === value.pageSize
+          ? value.page
+          : DEFAULT_PAGE_NO,
+      pageSize: value.pageSize,
+    });
+    setPaginationModel({
+      ...value,
+      page:
+        paginationModel.pageSize === value.pageSize
+          ? value.page
+          : DEFAULT_PAGE_NO,
+    });
+  };
 
-    const dispatch = useDispatch();
-    useEffect(() => {
-        const payload = {
-            "From": (page + 1),
-            "To": (page + 1) * rowsPerPage,
-            "Title": "",
-            "UserId": 1248,
-            "IsArchive": false,
-            "UserIds": "",
-            "Priority": "",
-            "TaskStatus": "",
-            "FromDueDate": "",
-            "ToDueDate": "",
-            "SortByDueDate": "",
-            "SortColumn": "",
-            "SortOrder": ""
-        }
-        dispatch(fetchTasks(payload))
-    }, [dispatch, page, rowsPerPage])
+  const formatDate = (date) => {
+    return dayjs(date).format("YYYY-MM-DD");
+  };
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-      };
-    
-      const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-      };
+  const dispatch = useDispatch();
+
+  const fetchAllTasks = ({ pageNo, pageSize }) => {
+    const payload = {
+      From: pageNo * pageSize + 1,
+      To: pageSize * (pageNo + 1),
+      Title: "",
+      UserId: 1248,
+      IsArchive: false,
+      UserIds: "",
+      Priority: "",
+      TaskStatus: "",
+      FromDueDate: "",
+      ToDueDate: "",
+      SortByDueDate: "",
+      SortColumn: "",
+      SortOrder: "",
+    };
+    dispatch(fetchTasks(payload));
+  };
+  useEffect(() => {
+    // pageNo: paginationModel.page, pageSize: paginationModel.pageSize
+    fetchAllTasks({
+      pageNo: paginationModel.page,
+      pageSize: paginationModel.pageSize,
+    });
+  }, [dispatch, rowsPerPage]);
+
+  const columns = [
+    {
+      field: "Title",
+      headerName: "Title",
+      renderCell: (params) => (
+        <span style={{ color: "blue" }}>{params.row.Title}</span>
+      ),
+    },
+    {
+      field: "LeadName",
+      headerName: "Customer Name",
+      renderCell: (params) => (
+        <span style={{ color: "blue" }}>{params.row.LeadName || "-"}</span>
+      ),
+    },
+    { field: "AssignedByUserName", headerName: "Assigned By" },
+    {
+      field: "createDate",
+      headerName: "Assigned Date",
+      renderCell: (params) => formatDate(params.row.CreateDate),
+    },
+    {
+      field: "TaskEndDate",
+      headerName: "Due Date",
+      renderCell: (params) => formatDate(params.row.TaskEndDate),
+    },
+    { field: "Priority", headerName: "Priority" },
+    {
+      field: "Status",
+      headerName: "Status",
+      renderCell: (params) => (
+        <span style={{ color: getStatus(params.row.TaskStatus).color }}>
+          {getStatus(params.row.TaskStatus).text}
+        </span>
+      ),
+    },
+    {
+      field: "",
+      headerName: "Action",
+      width: 100,
+      flex: 1,
+      renderCell: (params) => {
+        const isTaskPartial =
+          params.row.CompletionPercentage !== -1 &&
+          params.row.CompletionPercentage !== 100;
+        return (
+          <ButtonGroup variant="outlined">
+            <IconButton>
+              <ArchiveOutlined />
+            </IconButton>
+
+            <IconButton
+              color="primary"
+              sx={{
+                visibility: params.row.TaskStatus === -1 ? "visible" : "hidden",
+              }}
+            >
+              <ThumbUpAltOutlined />
+            </IconButton>
+            <IconButton color="info">
+              <BarChartOutlined />
+            </IconButton>
+
+            <IconButton color="error" onClick={() => handleDeleteTask(params.row?.TaskId)} >
+              <DeleteForeverOutlined />
+            </IconButton>
+
+            <IconButton
+              color="secondary"
+              sx={{ visibility: isTaskPartial ? "visible" : "hidden" }}
+            >
+              <CheckCircleOutline />
+            </IconButton>
+            <IconButton
+              color="success"
+              sx={{ visibility: isTaskPartial ? "visible" : "hidden" }}
+            >
+              <AccessTime />
+            </IconButton>
+          </ButtonGroup>
+        );
+      },
+    },
+  ];
+
+  const handleDeleteTask = (taskId) => {
+    dispatch(deleteTask(taskId))
+  }
 
   return (
     <Paper>
-
-    <TableContainer component={Paper} sx={{ maxWidth: "95%", margin: "auto", mt: 2 }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell>Customer Name</TableCell>
-            <TableCell>Assigned By</TableCell>
-            <TableCell>Assigned Date</TableCell>
-            <TableCell>Due Date</TableCell>
-            <TableCell>Priority</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {tasks?.map((task, index) => (
-            <TableRow key={index}>
-              <TableCell>{task.Title}</TableCell>
-              <TableCell>{task.LeadName}</TableCell>
-              <TableCell>{task.AssignedByUserName}</TableCell>
-              <TableCell>{formatDate(task.CreateDate)}</TableCell>
-              <TableCell>{ formatDate(task.TaskEndDate)}</TableCell>
-              <TableCell>{task.Priority}</TableCell>
-              <TableCell sx={{ color: getStatus(task.TaskStatus).color }}>
-                { getStatus(task.TaskStatus).text}
-              </TableCell>
-              <TableCell>
-                <IconButton color="primary"><ThumbUp /></IconButton>
-                <IconButton color="secondary"><BarChart /></IconButton>
-                <IconButton color="error"><Delete /></IconButton>
-                {task.status === "Accepted" && <IconButton color="success"><CheckCircle /></IconButton>}
-                {task.status === "Accepted" && <IconButton color="primary"><AccessTime /></IconButton>}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <TablePagination
-    rowsPerPageOptions={[5, 10, 25]}
-    component="div"
-    count={totalCount}
-    rowsPerPage={rowsPerPage}
-    page={page}
-    onPageChange={handleChangePage}
-    onRowsPerPageChange={handleChangeRowsPerPage}
-    />
+      <DataGrid
+        columns={columns}
+        rows={tasks}
+        rowCount={totalCount}
+        paginationMode="server"
+        loading={!tasks?.length}
+        getRowId={(row) => row?.TaskId}
+        paginationModel={paginationModel}
+        onPaginationModelChange={onPaginationModelChange}
+        pageSizeOptions={rowsPerPage}
+      />
     </Paper>
-  )
-}
+  );
+};
 
-export default TaskTable
+export default TaskTable;

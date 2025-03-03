@@ -1,21 +1,20 @@
-import TaskTable from './TaskTable'
-import AddTaskForm from './AddTaskForm'
-import { useEffect } from 'react'
-import toast from 'react-hot-toast'
-
+import TaskTable from "./TaskTable";
+import AddTaskForm from "./AddTaskForm";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Button, Stack } from "@mui/material";
+import FilterButton from "./FilterButton";
 
 const MyTask = () => {
-  useEffect(() => {
-    toast.success("Hello")
-  }, [])
-    
-  
   return (
-    <div style={{width : "100%"}} >MyTask
-        {/* <TaskTable/> */}
-        <AddTaskForm/>
+    <div style={{ width: "100%" }}>
+      <Stack direction="row" justifyContent="space-between" m={2}>
+        <FilterButton />
+        <Button variant="contained">Add Task</Button>
+      </Stack>
+      <TaskTable />
     </div>
-  )
-}
+  );
+};
 
-export default MyTask
+export default MyTask;

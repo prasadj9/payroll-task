@@ -9,6 +9,9 @@ import {
 import styles from "./Login.module.scss";
 import { useForm } from "react-hook-form";
 import { publicRequest } from "../services/publicRequest";
+import { useNavigate } from 'react-router-dom';
+import { PATH } from './../utils/pagePath';
+import toast from "react-hot-toast";
 
 const Login = () => {
   const {
@@ -17,18 +20,25 @@ const Login = () => {
     reset,
     formState: { errors, isSubmitting },
   } = useForm();
+  const navigate = useNavigate();
   const onSubmit = async (data) => {
-    const res = await publicRequest.post("/account/authenticate", data);
-    console.log(data, res);
-    // Combine them into a string 'username:password'
-    const combined = `${data.username}:${data.password}`;
-
-    // Base64 encode the combined string
-    const base64Encoded = btoa(combined);
-    // if(res.data.success)
-    localStorage.setItem("token", base64Encoded);
-    localStorage.setItem("userId", res.data.userId);
+    try {      
+      const res = await publicRequest.post("/account/authenticate", data);
+      if(res.data.success) {
+        // Combine them into a string 'username:password'
+        const combined = `${data.username}:${data.password}`;
+  
+        // Base64 encode the combined string
+      const base64Encoded = btoa(combined);
+      localStorage.setItem("token", base64Encoded);
+      localStorage.setItem("userId", res.data.userId);
+      toast.success("LoggedIn successfully")
+      navigate(PATH.DASHBOARD)
+    }
     reset();
+  } catch (error) {
+    toast.error("Failed To login")
+  }
   };
 
   console.log(import.meta.env.VITE_API_BASE_URL + "URL");

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { privateRequest } from "./../../services/privateRequest";
-import { TASK } from "../../services/endPoints";
+import { DELETE_TASK, TASK } from "../../services/endPoints";
 
 const initialState = {
   team: {},
@@ -42,6 +42,18 @@ export const addTask = createAsyncThunk(
   async ({ payload }, { dispatch }) => {
     try {
       await privateRequest.post("/addtask", payload);
+    } catch (error) {
+      console.log(error);
+      throw error.response.data;
+    }
+  }
+);
+
+export const deleteTask = createAsyncThunk(
+  "task/addTask",
+  async (taskId, { dispatch }) => {
+    try {
+      await privateRequest.get(DELETE_TASK + `?taskId=${taskId}`);
     } catch (error) {
       console.log(error);
       throw error.response.data;
