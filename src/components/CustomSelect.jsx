@@ -1,17 +1,23 @@
-import React from "react";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Controller } from "react-hook-form";
 
-const CustomSelect = ({ label, options=[], value, onChange, name, fullWidth = true }, props) => {
+const CustomSelect = ({ name, label, control, options = []}) => {
   return (
-    <FormControl fullWidth={fullWidth} margin="normal" variant="standard">
+    <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
-      <Select name={name} value={value} onChange={onChange} {...props} >
-        {options.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <Select {...field} variant="standard">
+            {options.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      />
     </FormControl>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ButtonGroup, IconButton, Paper } from "@mui/material";
+import { Button, ButtonGroup, IconButton, Paper, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   ThumbUp,
@@ -15,15 +15,24 @@ import {
   BarChartOutlined,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteTask, fetchTasks } from "../../store/slices/taskSlice";
+import {
+  deleteTask,
+  fetchTasks,
+  updateTaskStatus,
+} from "../../store/slices/taskSlice";
 import { getStatus } from "../../utils/utils";
 import dayjs from "dayjs";
+import PartialCompleteModal from "./PartialCompleteModal";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const DEFAULT_PAGE_NO = 0;
 const rowsPerPage = [10, 25, 50, 100];
 
 const TaskTable = () => {
+  const dispatch = useDispatch();
   const { tasks, totalCount } = useSelector((state) => state.task);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: rowsPerPage[0],
     page: DEFAULT_PAGE_NO,
@@ -50,7 +59,9 @@ const TaskTable = () => {
     return dayjs(date).format("YYYY-MM-DD");
   };
 
-  const dispatch = useDispatch();
+  const handleUpdateTaskStatus = (TaskId, TaskStatusValue) => {
+    dispatch(updateTaskStatus({ TaskId, TaskStatusValue }));
+  };
 
   const fetchAllTasks = ({ pageNo, pageSize }) => {
     const payload = {
@@ -134,6 +145,7 @@ const TaskTable = () => {
               sx={{
                 visibility: params.row.TaskStatus === -1 ? "visible" : "hidden",
               }}
+              onClick={() => handleUpdateTaskStatus(params.row.TaskId, 0)}
             >
               <ThumbUpAltOutlined />
             </IconButton>
@@ -141,13 +153,17 @@ const TaskTable = () => {
               <BarChartOutlined />
             </IconButton>
 
-            <IconButton color="error" onClick={() => handleDeleteTask(params.row?.TaskId)} >
+            <IconButton
+              color="error"
+              onClick={() => {setSelectedTask(params.row?.TaskId); setIsConfirmOpen(true);}}
+            >
               <DeleteForeverOutlined />
             </IconButton>
 
             <IconButton
               color="secondary"
               sx={{ visibility: isTaskPartial ? "visible" : "hidden" }}
+              onClick={() => handleUpdateTaskStatus(params.row.TaskId, 100)}
             >
               <CheckCircleOutline />
             </IconButton>
@@ -163,12 +179,17 @@ const TaskTable = () => {
     },
   ];
 
-  const handleDeleteTask = (taskId) => {
-    dispatch(deleteTask(taskId))
+  
+  const handleConfirmDelete = () => {
+    if(selectedTask)
+    dispatch(deleteTask(selectedTask));
+    setSelectedTask(null);
+    setIsConfirmOpen(false);
   }
 
   return (
     <Paper>
+      <PartialCompleteModal/>
       <DataGrid
         columns={columns}
         rows={tasks}
@@ -179,6 +200,16 @@ const TaskTable = () => {
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         pageSizeOptions={rowsPerPage}
+      />
+      {/* <PartialCompleteModal   /> */}
+      <ConfirmModal
+        open={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Task"
+        message="Do you want to delete this Task?"
+        confirmText="Delete"
+        cancelText="Cancel"
       />
     </Paper>
   );

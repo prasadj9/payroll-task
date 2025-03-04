@@ -7,6 +7,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import { sideBarNavigation } from "../../utils/sideBarNavigation";
 import React, { useState } from "react";
+import { clearToken, getUserEmail, getUserImage, getUserName } from "../../utils/utils";
 
 function CustomAppTitle() {
   return (
@@ -22,29 +23,22 @@ function CustomAppTitle() {
 }
 
 const PostLogin = () => {
-
   const [session, setSession] = useState({
     user: {
-      name: 'ABC',
-      email: 'abc@outlook.com',
-      image: 'https://avatar.iran.liara.run/public/47'}
+      name: getUserName(),
+      email: getUserEmail(),
+      image: getUserImage()}
   })
 
   const navigate = useNavigate()
   const authentication = React.useMemo(() => {
     return {
       signIn: () => {
-        // setSession({
-        //   user: {
-        //     name: 'Bharat Kashyap',
-        //     email: 'abc@outlook.com',
-        //     image: 'https://avatar.iran.liara.run/public/47',
-        //   },
-        // });
         navigate("/login")
       },
       signOut: () => {
         setSession(null);
+        clearToken();
         navigate("/login")
       },
     };

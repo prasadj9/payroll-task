@@ -1,8 +1,7 @@
 import TaskTable from "./TaskTable";
 import AddTaskForm from "./AddTaskForm";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { Button, Stack } from "@mui/material";
+
+import { Button, Stack, TextField } from "@mui/material";
 import FilterButton from "./FilterButton";
 
 const MyTask = () => {
@@ -10,7 +9,10 @@ const MyTask = () => {
     <div style={{ width: "100%" }}>
       <Stack direction="row" justifyContent="space-between" m={2}>
         <FilterButton />
-        <Button variant="contained">Add Task</Button>
+        <Stack direction="row" gap={2}>
+          <TextField label="Search" variant="standard"   />
+        </Stack>
+        <AddTaskForm/>
       </Stack>
       <TaskTable />
     </div>

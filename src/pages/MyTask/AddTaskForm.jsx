@@ -12,27 +12,71 @@ import {
   Tab,
   Tabs,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Toolbar,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import CustomSelect from "../../components/CustomSelect";
+import { priorityOptions } from "../../utils/utils";
+import toast from "react-hot-toast";
+import MembersList from "./MembersList";
 
-const AddTaskForm = ({ open, handleClose }) => {
+const AddTaskForm = () => {
+  const [open, setOpen] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const { control, register, handleSubmit, reset } = useForm();
-  const fileName = "New";
+  const [fileName, setFileName] = useState("");
+  const [fileBase64, setFileBase64] = useState("");
+  const fileAttachmentRef = useRef(null);
+
+  const [usersModalOpen, setUsersModalOpen] = useState(false)
 
   const handleTabChange = (event, newIndex) => {
     setTabIndex(newIndex);
   };
+  const handleCloseModal = () => {
+    setOpen(false);
+  }
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file size (2 MB limit)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("File size exceeds 2 MB limit.");
+        return;
+      }
+
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target.result.split(",")[1]; // Remove the data URL prefix
+        setFileBase64(base64String);
+        setFileName(file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveFile = (e) => {
+    e.stopPropagation();
+    setFileName("");
+    setFileBase64("");
+    fileAttachmentRef.current.value = ""; // Clear the file input
+  };
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <div>
+      <Button variant="contained" onClick={() => setOpen(true)} >Add Task</Button>
+    
+    <Modal open={open} onClose={handleCloseModal}>
       <Box
+        component="div"
         sx={{
           width: {
             xs: "90%", // 90% of the parent width on small screens
@@ -102,24 +146,24 @@ const AddTaskForm = ({ open, handleClose }) => {
 
           {/* File Upload */}
           <TextField
-            label="Upload File"
+            label="Add File"
             value={fileName}
-            onClick={() => document.getElementById("file-input").click()}
-            disabled
+            onClick={() => fileAttachmentRef.current.click()}
             margin="normal"
             variant="standard"
             fullWidth
             InputProps={{
+              readOnly : true,
               endAdornment: fileName && (
                 <InputAdornment position="end">
-                  <Button variant="text" color="secondary" onClick={() => {}}>
+                  <Button variant="text" color="secondary" onClick={handleRemoveFile}>
                     Remove
                   </Button>
                 </InputAdornment>
               ),
             }}
           />
-          <input type="file" id="file-input" style={{ display: "none" }} />
+          <input type="file" id="file-input" ref={fileAttachmentRef} style={{ display: "none" }} onChange={handleFileChange}/>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
             <Box
@@ -149,7 +193,7 @@ const AddTaskForm = ({ open, handleClose }) => {
               </FormControl>
 
               {/* Due Date */}
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              
                 <Controller
                   name="duedate"
                   control={control}
@@ -164,11 +208,19 @@ const AddTaskForm = ({ open, handleClose }) => {
                     />
                   )}
                 />
-              </LocalizationProvider>
             </Box>
 
             {/* Priority Selection */}
-            <FormControl fullWidth sx={{width : "50%"}} >
+
+                  {/* Priority Selection */}
+        <CustomSelect
+          name="priority"
+          label="Select Priority"
+          control={control}
+          options={priorityOptions}
+        />
+
+            {/* <FormControl fullWidth sx={{width : "50%"}} >
               <InputLabel>Select Priority</InputLabel>
               <Controller
                 name="priority"
@@ -181,8 +233,21 @@ const AddTaskForm = ({ open, handleClose }) => {
                   </Select>
                 )}
               />
-            </FormControl>
+            </FormControl> */}
           </Box>
+
+          {/* Members */}
+          <TextField
+            label="Add Users"
+            value={"3 users"}
+            onClick={() => setUsersModalOpen(true)}
+            margin="normal"
+            variant="standard"
+            fullWidth
+            InputProps={{
+              readOnly : true,
+            }}
+          />
         </Box>
 
         {/* Bottom AppBar */}
@@ -197,7 +262,7 @@ const AddTaskForm = ({ open, handleClose }) => {
           }}
         >
           <Toolbar sx={{ justifyContent: "end", gap: 2 }}>
-            <Button variant="outlined" onClick={handleClose}>
+            <Button variant="outlined" onClick={handleCloseModal}>
               Cancel
             </Button>
             <Button type="submit" variant="contained" color="primary">
@@ -205,8 +270,10 @@ const AddTaskForm = ({ open, handleClose }) => {
             </Button>
           </Toolbar>
         </AppBar>
+        <MembersList open={usersModalOpen} handleClose={() => setUsersModalOpen(false)} />
       </Box>
     </Modal>
+    </div>
   );
 };
 
