@@ -4,11 +4,8 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 const partialCompleteOptions = [50, 75, 100];
 
-import Button from "@mui/material/Button";
-
-const PartialCompleteModal = () => {
+const PartialCompleteModal = ({isOpen, handleClose, handleUpdateTaskStatus, taskId}) => {
   const [percent, setPercent] = useState();
-  const [isOpen, setIsOpen] = useState(false);
 
   const handlePercentChange = (e, nextPercent) => {
     if (nextPercent !== null) {
@@ -16,31 +13,13 @@ const PartialCompleteModal = () => {
     }
   };
 
-  const handleClose = () => setIsOpen(false);
-  const handleOpen = () => setIsOpen(true);
   return (
     <>
-      <Button variant="contained" onClick={handleOpen}>
-        Open Modal
-      </Button>
-
       <CustomModal
         open={isOpen}
         onClose={handleClose}
         title="Partial Complete"
-        actions={[
-          <Button key="cancel" onClick={handleClose} color="inherit">
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            onClick={handlePercentChange}
-            variant="contained"
-            color="primary"
-          >
-            Done
-          </Button>,
-        ]}
+        handleSubmit={() => handleUpdateTaskStatus(taskId, percent)}
       >
         <ToggleButtonGroup
           value={percent}

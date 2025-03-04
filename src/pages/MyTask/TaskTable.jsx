@@ -33,6 +33,7 @@ const TaskTable = () => {
   const { tasks, totalCount } = useSelector((state) => state.task);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isPartialTaskModalOpen, setIsPartialTaskModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: rowsPerPage[0],
     page: DEFAULT_PAGE_NO,
@@ -61,6 +62,8 @@ const TaskTable = () => {
 
   const handleUpdateTaskStatus = (TaskId, TaskStatusValue) => {
     dispatch(updateTaskStatus({ TaskId, TaskStatusValue }));
+    setSelectedTask(null);
+    setIsPartialTaskModalOpen(false);
   };
 
   const fetchAllTasks = ({ pageNo, pageSize }) => {
@@ -170,6 +173,7 @@ const TaskTable = () => {
             <IconButton
               color="success"
               sx={{ visibility: isTaskPartial ? "visible" : "hidden" }}
+              onClick={() =>{setSelectedTask(params.row.TaskId); setIsPartialTaskModalOpen(true)}}
             >
               <AccessTime />
             </IconButton>
@@ -201,7 +205,7 @@ const TaskTable = () => {
         onPaginationModelChange={onPaginationModelChange}
         pageSizeOptions={rowsPerPage}
       />
-      {/* <PartialCompleteModal   /> */}
+      <PartialCompleteModal isOpen={isPartialTaskModalOpen} handleClose={() => setIsPartialTaskModalOpen(false)} taskId={selectedTask} handleUpdateTaskStatus={handleUpdateTaskStatus}  />
       <ConfirmModal
         open={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
