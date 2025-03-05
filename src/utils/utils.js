@@ -6,6 +6,10 @@ export const getUserName = () => {
   return localStorage.getItem("userName");
 };
 
+export const getUserId = () => {
+  return localStorage.getItem("userId");
+};
+
 export const getUserEmail = () => {
   return localStorage.getItem("userEmail");
 };
@@ -31,6 +35,36 @@ export function getStatus(num) {
       return { color: "blue", text: `Partial Complete (${num}%)` };
   }
 }
+
+export const getMediaDetails = (mediaFile) => {
+  return new Promise((resolve, reject) => {
+    // Create a FileReader instance
+    const reader = new FileReader();
+
+    // Read the file as a data URL (base64)
+    reader.readAsDataURL(mediaFile);
+
+    reader.onload = () => {
+      const base64Data = reader.result.split(',')[1];
+      const fileName = mediaFile.name; 
+      const fileExtension = fileName.split('.').pop(); 
+      const mediaType = mediaFile.type.startsWith('image') ? 'I' : 'V'; // Media type ('I' for image, 'V' for video)
+
+      // Resolve with the media details object
+      resolve({
+        MultimediaData: base64Data,
+        MultimediaExtension: fileExtension,
+        MultimediaFileName: fileName,
+        MultimediaType: mediaType,
+      });
+    };
+
+    // Handle errors
+    reader.onerror = () => {
+      reject(new Error("Failed to read the media file."));
+    };
+  });
+};
 
 export const priorityOptions = [
   { label: "Low", value: "Low" },

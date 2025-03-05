@@ -1,6 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { privateRequest } from "./../../services/privateRequest";
-import { DELETE_TASK, TASK, UPDATE_TASK_STATUS } from "../../services/endPoints";
+import {
+  DELETE_TASK,
+  TASK,
+  UPDATE_TASK_STATUS,
+} from "../../services/endPoints";
+import { getMediaDetails, getUserId } from "../../utils/utils";
+import dayjs from "dayjs";
 
 const initialState = {
   team: {},
@@ -37,11 +43,61 @@ export const fetchTasks = createAsyncThunk(
   }
 );
 
+const formatData = async (payload) => {
+
+  let mediaDetails = {
+    MultimediaData: "",
+    MultimediaExtension: "",
+    MultimediaFileName: "",
+    MultimediaType: "",
+  };
+
+  if (payload?.file) {
+    try {
+      mediaDetails = await getMediaDetails(payload.file);
+      console.log("FILE : ", payload?.file, mediaDetails)
+    } catch (error) {
+      console.error("Error processing media file:", error.message);
+    }
+  }
+  const obj = {
+    Id: "",
+    AssignedBy: getUserId(),
+    AssignedToUserId: "",
+    AssignedDate: "",
+    CompletedDate: "",
+    Description: payload?.Description || "",
+    IntercomGroupIds: [],
+    IsActive: true,
+    Latitude: "",
+    Location: "",
+    Longitude: "",
+    Image: mediaDetails.MultimediaData,
+    MultimediaData: mediaDetails.MultimediaData, 
+    MultimediaExtension: mediaDetails.MultimediaExtension,
+    MultimediaFileName: mediaDetails.MultimediaFileName,
+    MultimediaType: mediaDetails.MultimediaType,
+    Priority: payload?.Priority || "",
+    TaskEndDateDisplay: dayjs(payload?.TaskEndDate).format("DD MMM YYYY"),
+    TaskEndDate: payload?.TaskEndDate,
+    TaskDisplayOwners: `${payload?.TaskOwners?.length > 0 ? payload?.TaskOwners?.length + "Users" : ""}`,
+    TaskOwners: payload?.TaskOwners,
+    TaskStatus: "",
+    Title: payload?.Title,
+    UserDisplayIds: `${payload?.UserIds?.length > 0 ? payload?.UserIds?.length + "Users" : ""}`,
+    UserIds: payload?.UserIds || "",
+    LeadId: payload?.LeadId?.id || "",
+  };
+  return obj;
+};
+
 export const addTask = createAsyncThunk(
   "task/addTask",
-  async ({ payload }, { dispatch }) => {
+  async (payload, { dispatch }) => {
     try {
-      await privateRequest.post("/addtask", payload);
+      const data = await formatData(payload);
+      // await privateRequest.post("/addtask", payload);
+      console.log("Payload", payload, data);
     } catch (error) {
       console.log(error);
       throw error.response.data;
@@ -66,7 +122,6 @@ export const updateTaskStatus = createAsyncThunk(
   async (data, { dispatch }) => {
     try {
       await privateRequest.post(UPDATE_TASK_STATUS, data);
-      
     } catch (error) {
       console.log(error);
       throw error.response.data;
@@ -101,6 +156,6 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setFilterData } = taskSlice.actions
+export const { setFilterData } = taskSlice.actions;
 
 export default taskSlice.reducer;

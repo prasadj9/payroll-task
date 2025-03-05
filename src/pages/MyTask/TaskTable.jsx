@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Button, ButtonGroup, IconButton, Paper, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { ButtonGroup, IconButton, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
-  ThumbUp,
-  BarChart,
-  Delete,
-  CheckCircle,
   AccessTime,
   DeleteForeverOutlined,
   ThumbUpAltOutlined,
-  CheckCircleOutlineOutlined,
   CheckCircleOutline,
   ArchiveOutlined,
   BarChartOutlined,
@@ -28,11 +23,12 @@ import ConfirmModal from "../../components/ConfirmModal";
 const DEFAULT_PAGE_NO = 0;
 const rowsPerPage = [10, 25, 50, 100];
 
-const TaskTable = () => {
+const TaskTable = ({search}) => {
   const dispatch = useDispatch();
   const { tasks, totalCount } = useSelector((state) => state.task);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [sortModel, setSortModel] = useState([]);
   const [isPartialTaskModalOpen, setIsPartialTaskModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: rowsPerPage[0],
@@ -46,6 +42,8 @@ const TaskTable = () => {
           ? value.page
           : DEFAULT_PAGE_NO,
       pageSize: value.pageSize,
+      sortColumn: sortModel.length > 0 ? sortModel[0].field : "",
+      sortOrder: sortModel.length > 0 ? sortModel[0].sort : "",
     });
     setPaginationModel({
       ...value,
@@ -66,11 +64,11 @@ const TaskTable = () => {
     setIsPartialTaskModalOpen(false);
   };
 
-  const fetchAllTasks = ({ pageNo, pageSize }) => {
+  const fetchAllTasks = ({ pageNo, pageSize, sortColumn, sortOrder }) => {
     const payload = {
       From: pageNo * pageSize + 1,
       To: pageSize * (pageNo + 1),
-      Title: "",
+      Title: search,
       UserId: 1248,
       IsArchive: false,
       UserIds: "",
@@ -79,23 +77,25 @@ const TaskTable = () => {
       FromDueDate: "",
       ToDueDate: "",
       SortByDueDate: "",
-      SortColumn: "",
-      SortOrder: "",
+      SortColumn: sortColumn,
+      SortOrder: sortOrder,
     };
     dispatch(fetchTasks(payload));
   };
   useEffect(() => {
-    // pageNo: paginationModel.page, pageSize: paginationModel.pageSize
     fetchAllTasks({
       pageNo: paginationModel.page,
       pageSize: paginationModel.pageSize,
+      sortColumn: sortModel.length > 0 ? sortModel[0].field : "",
+      sortOrder: sortModel.length > 0 ? sortModel[0].sort : "",
     });
-  }, [dispatch, rowsPerPage]);
+  }, [dispatch, rowsPerPage, search, sortModel, paginationModel]);
 
   const columns = [
     {
       field: "Title",
       headerName: "Title",
+      sortable: false, 
       renderCell: (params) => (
         <span style={{ color: "blue" }}>{params.row.Title}</span>
       ),
@@ -103,25 +103,29 @@ const TaskTable = () => {
     {
       field: "LeadName",
       headerName: "Customer Name",
+      sortable: false, 
       renderCell: (params) => (
         <span style={{ color: "blue" }}>{params.row.LeadName || "-"}</span>
       ),
     },
-    { field: "AssignedByUserName", headerName: "Assigned By" },
+    { field: "AssignedByUserName", headerName: "Assigned By", sortable: false,  },
     {
       field: "createDate",
       headerName: "Assigned Date",
+      sortable: true, 
       renderCell: (params) => formatDate(params.row.CreateDate),
     },
     {
       field: "TaskEndDate",
       headerName: "Due Date",
+      sortable: true, 
       renderCell: (params) => formatDate(params.row.TaskEndDate),
     },
-    { field: "Priority", headerName: "Priority" },
+    { field: "Priority", headerName: "Priority", sortable: false,  },
     {
       field: "Status",
       headerName: "Status",
+      sortable: false, 
       renderCell: (params) => (
         <span style={{ color: getStatus(params.row.TaskStatus).color }}>
           {getStatus(params.row.TaskStatus).text}
@@ -191,6 +195,10 @@ const TaskTable = () => {
     setIsConfirmOpen(false);
   }
 
+  const handleSortModelChange = (newSortModel) => {
+    setSortModel(newSortModel);
+  };
+
   return (
     <Paper>
       <PartialCompleteModal/>
@@ -204,6 +212,8 @@ const TaskTable = () => {
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         pageSizeOptions={rowsPerPage}
+        sortingMode="server"
+        onSortModelChange={handleSortModelChange}
       />
       <PartialCompleteModal isOpen={isPartialTaskModalOpen} handleClose={() => setIsPartialTaskModalOpen(false)} taskId={selectedTask} handleUpdateTaskStatus={handleUpdateTaskStatus}  />
       <ConfirmModal
