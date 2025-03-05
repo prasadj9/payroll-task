@@ -1,146 +1,132 @@
 import React, { useState } from "react";
 import {
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   TextField,
-  Popper,
-  ClickAwayListener,
-  Paper,
+  Grid,
 } from "@mui/material";
-import CustomSelect from "../../components/CustomSelect";
-import dayjs from "dayjs";
-import { priorityOptions, statusOptions } from "../../utils/utils";
 import MembersList from "./MembersList";
+import { DatePicker } from "@mui/x-date-pickers";
+import CustomModal from "../../components/CustomModal";
+import CustomSelect from "../../components/CustomSelect";
+import { priorityOptions, statusOptions } from "../../utils/utils";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { setFilterData } from "../../store/slices/taskSlice";
 
 const FilterButton = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [membersModalOpen, setMembersModalOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    status: "",
-    priority: "",
-    member: "",
-    fromDate: "",
-    toDate: "",
-  });
 
-  const handleClick = (event) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget);
+  const {control, handleSubmit, reset, watch, setValue} = useForm({defaultValues : {
+    TaskStatus: "",
+    Priority: "",
+    UserIds: "",
+    FromDueDate: null,
+    ToDueDate: null,
+  }})
+
+  const handleClickOpen = () => {
+    setDialogOpen(true);
   };
 
   const handleClose = () => {
-    console.log("filter", filters);
-    // setAnchorEl(null);
+    setDialogOpen(false);
   };
 
-  const handleChange = (event) => {
-    event.stopPropagation();
-    setFilters({ ...filters, [event.target.name]: event.target.value });
+  const setMembers = (memberIds) => {
+    if (membersModalOpen) setValue("UserIds", memberIds);
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "filter-popper" : undefined;
+
+const dispatch = useDispatch();
+  const onSubmit = (value) => {
+      dispatch(setFilterData(value));
+      handleClose();
+      reset();
+  };
 
   return (
-    <div>
-      <Button variant="contained" color="primary" onClick={handleClick}>
+    <div >
+      <Button variant="contained" color="primary" onClick={handleClickOpen}>
         Filter
       </Button>
+      <CustomModal
+      maxWidth="xs"
+        title="Filter Options"
+        open={dialogOpen}
+        handleSubmit={handleSubmit(onSubmit)}
+        onClose={handleClose}
+      >
+        <form>
+          <CustomSelect
+            label="By Status"
+            name="TaskStatus"
+            control={control}
+            options={statusOptions}
+            margin="normal"
+          />
+          <CustomSelect
+            label="By Priority"
+            name="Priority"
+            control={control}
+            options={priorityOptions}
+          />
+          
+          <TextField
+            label="By Members"
+            value={watch("UserIds")
+              ? Object.keys(watch("UserIds")).length + " Users"
+              : ""}
+            onClick={() => setMembersModalOpen(true)}
+            margin="normal"
+            size="small"
+            variant="standard"
+            fullWidth
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+          <MembersList
+            open={membersModalOpen}
+            handleClose={() => setMembersModalOpen(false)}
+            setcheckedMembers={setMembers}
+          />
 
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
-        <ClickAwayListener onClickAway={handleClose}>
-          <Paper
-            sx={{ p: 2, width: 250, boxShadow: 3, borderRadius: 2 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Status</InputLabel>
-              <Select
-                name="status"
-                value={filters.status}
-                onChange={handleChange}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Not Accepted">Not Accepted</MenuItem>
-                <MenuItem value="Partial Complete">Partial Complete</MenuItem>
-                <MenuItem value="Accepted">Accepted</MenuItem>
-                <MenuItem value="Completed">Completed</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Priority</InputLabel>
-              <Select
-                name="priority"
-                value={filters.priority}
-                onChange={handleChange}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="High">High</MenuItem>
-                <MenuItem value="Medium">Medium</MenuItem>
-                <MenuItem value="Low">Low</MenuItem>
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Add Users"
-              value={"3 users"}
-              onClick={() => setMembersModalOpen(true)}
-              margin="normal"
-              variant="standard"
-              fullWidth
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-            <MembersList open={membersModalOpen} handleClose={() => setMembersModalOpen(false)} />
-
-            <TextField
-              label="From Due Date"
-              type="date"
-              name="fromDate"
-              value={filters.fromDate}
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              margin="normal"
-            />
-
-            <TextField
-              label="To Due Date"
-              type="date"
-              name="toDate"
-              value={filters.toDate}
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              margin="normal"
-            />
-
-            <Button
-              onClick={() =>
-                setFilters({
-                  status: "",
-                  priority: "",
-                  fromDate: "",
-                  toDate: "",
-                })
-              }
-            >
-              Clear
-            </Button>
-            <Button variant="contained" color="primary" onClick={handleClose}>
-              Apply
-            </Button>
-          </Paper>
-        </ClickAwayListener>
-      </Popper>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              
+              <Controller
+                  name="FromDueDate"
+                  control={control}
+                  render={({ field}) => (
+                    <DatePicker
+                      {...field}
+                      label="From Due Date"
+                      format="DD MMM YYYY"
+                      sx={{ flex: 1 }}
+                      slotProps={{ textField: { variant: "standard"} }}
+                    />
+                  )}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+            <Controller
+                  name="ToDueDate"
+                  control={control}
+                  render={({ field}) => (
+                    <DatePicker
+                      {...field}
+                      label="To Due Date"
+                      format="DD MMM YYYY"
+                      sx={{ flex: 1 }}
+                      slotProps={{ textField: { variant: "standard"} }}
+                    />
+                  )}
+                />
+            </Grid>
+          </Grid>
+        </form>
+      </CustomModal>
     </div>
   );
 };

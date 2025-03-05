@@ -20,7 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import CustomSelect from "../../components/CustomSelect";
-import { getMediaDetails, getUserId, priorityOptions } from "../../utils/utils";
+import { priorityOptions } from "../../utils/utils";
 import toast from "react-hot-toast";
 import MembersList from "./MembersList";
 import { useDispatch } from 'react-redux';

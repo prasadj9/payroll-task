@@ -3,7 +3,7 @@ import { Controller } from "react-hook-form";
 
 const CustomSelect = ({ name, label, control, options = []}) => {
   return (
-    <FormControl fullWidth>
+    <FormControl fullWidth margin="normal" size="small" >
       <InputLabel>{label}</InputLabel>
       <Controller
         name={name}

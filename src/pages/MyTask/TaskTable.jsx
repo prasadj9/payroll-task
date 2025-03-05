@@ -23,8 +23,9 @@ import ConfirmModal from "../../components/ConfirmModal";
 const DEFAULT_PAGE_NO = 0;
 const rowsPerPage = [10, 25, 50, 100];
 
-const TaskTable = ({search}) => {
+const TaskTable = ({ search }) => {
   const dispatch = useDispatch();
+  const { filterData } = useSelector((state) => state.task);
   const { tasks, totalCount } = useSelector((state) => state.task);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -79,6 +80,7 @@ const TaskTable = ({search}) => {
       SortByDueDate: "",
       SortColumn: sortColumn,
       SortOrder: sortOrder,
+      ...filterData
     };
     dispatch(fetchTasks(payload));
   };
@@ -89,13 +91,13 @@ const TaskTable = ({search}) => {
       sortColumn: sortModel.length > 0 ? sortModel[0].field : "",
       sortOrder: sortModel.length > 0 ? sortModel[0].sort : "",
     });
-  }, [dispatch, rowsPerPage, search, sortModel, paginationModel]);
+  }, [dispatch, rowsPerPage, search, sortModel, paginationModel, filterData]);
 
   const columns = [
     {
       field: "Title",
       headerName: "Title",
-      sortable: false, 
+      sortable: false,
       renderCell: (params) => (
         <span style={{ color: "blue" }}>{params.row.Title}</span>
       ),
@@ -103,29 +105,29 @@ const TaskTable = ({search}) => {
     {
       field: "LeadName",
       headerName: "Customer Name",
-      sortable: false, 
+      sortable: false,
       renderCell: (params) => (
         <span style={{ color: "blue" }}>{params.row.LeadName || "-"}</span>
       ),
     },
-    { field: "AssignedByUserName", headerName: "Assigned By", sortable: false,  },
+    { field: "AssignedByUserName", headerName: "Assigned By", sortable: false },
     {
       field: "createDate",
       headerName: "Assigned Date",
-      sortable: true, 
+      sortable: true,
       renderCell: (params) => formatDate(params.row.CreateDate),
     },
     {
       field: "TaskEndDate",
       headerName: "Due Date",
-      sortable: true, 
+      sortable: true,
       renderCell: (params) => formatDate(params.row.TaskEndDate),
     },
-    { field: "Priority", headerName: "Priority", sortable: false,  },
+    { field: "Priority", headerName: "Priority", sortable: false },
     {
       field: "Status",
       headerName: "Status",
-      sortable: false, 
+      sortable: false,
       renderCell: (params) => (
         <span style={{ color: getStatus(params.row.TaskStatus).color }}>
           {getStatus(params.row.TaskStatus).text}
@@ -162,7 +164,10 @@ const TaskTable = ({search}) => {
 
             <IconButton
               color="error"
-              onClick={() => {setSelectedTask(params.row?.TaskId); setIsConfirmOpen(true);}}
+              onClick={() => {
+                setSelectedTask(params.row?.TaskId);
+                setIsConfirmOpen(true);
+              }}
             >
               <DeleteForeverOutlined />
             </IconButton>
@@ -177,7 +182,10 @@ const TaskTable = ({search}) => {
             <IconButton
               color="success"
               sx={{ visibility: isTaskPartial ? "visible" : "hidden" }}
-              onClick={() =>{setSelectedTask(params.row.TaskId); setIsPartialTaskModalOpen(true)}}
+              onClick={() => {
+                setSelectedTask(params.row.TaskId);
+                setIsPartialTaskModalOpen(true);
+              }}
             >
               <AccessTime />
             </IconButton>
@@ -187,13 +195,11 @@ const TaskTable = ({search}) => {
     },
   ];
 
-  
   const handleConfirmDelete = () => {
-    if(selectedTask)
-    dispatch(deleteTask(selectedTask));
+    if (selectedTask) dispatch(deleteTask(selectedTask));
     setSelectedTask(null);
     setIsConfirmOpen(false);
-  }
+  };
 
   const handleSortModelChange = (newSortModel) => {
     setSortModel(newSortModel);
@@ -201,7 +207,7 @@ const TaskTable = ({search}) => {
 
   return (
     <Paper>
-      <PartialCompleteModal/>
+      <PartialCompleteModal />
       <DataGrid
         columns={columns}
         rows={tasks}
@@ -215,7 +221,12 @@ const TaskTable = ({search}) => {
         sortingMode="server"
         onSortModelChange={handleSortModelChange}
       />
-      <PartialCompleteModal isOpen={isPartialTaskModalOpen} handleClose={() => setIsPartialTaskModalOpen(false)} taskId={selectedTask} handleUpdateTaskStatus={handleUpdateTaskStatus}  />
+      <PartialCompleteModal
+        isOpen={isPartialTaskModalOpen}
+        handleClose={() => setIsPartialTaskModalOpen(false)}
+        taskId={selectedTask}
+        handleUpdateTaskStatus={handleUpdateTaskStatus}
+      />
       <ConfirmModal
         open={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}

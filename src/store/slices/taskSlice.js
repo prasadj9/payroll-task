@@ -12,8 +12,14 @@ const initialState = {
   team: {},
   tasks: [],
   comments: [],
-  totalCount: null,
-  filterData: {},
+  totalCount: 0,
+  filterData: {
+    // TaskStatus : "",
+    // Priority : "",
+    // UserIds : [],
+    // FromDueDate : "",
+    // ToDueDate : "",
+  },
   loading: false,
   error: null,
 };
