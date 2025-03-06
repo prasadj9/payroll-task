@@ -35,7 +35,7 @@ const AddTaskForm = () => {
   const dispatch = useDispatch();
   const [file, setFile] = useState(null);
   const fileAttachmentRef = useRef(null);
-  const {leadMembers, loading} = useLeadMembers();
+  const {leadMembers} = useLeadMembers();
 
   const [usersModal, setUsersModal] = useState({ open: false, type: null });
 
@@ -71,7 +71,8 @@ const AddTaskForm = () => {
 
   const onSubmit = async (values) => {
     dispatch(addTask({...values, file}))
-    
+    reset();
+    handleCloseModal();
   };
   return (
     <div>
@@ -214,6 +215,7 @@ const AddTaskForm = () => {
                       {...field}
                       options={leadMembers}
                       getOptionKey={(option) => option.id}
+                      onChange={(_, newValue) => field.onChange(newValue ? newValue.id : null)}
                       renderInput={(params) => <TextField {...params} variant="standard" label="Lead/Customer Name" />}
                     />
                     )}

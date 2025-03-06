@@ -1,25 +1,20 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { privateRequest } from "./../../services/privateRequest";
 import {
+  ADD_TASK,
   DELETE_TASK,
   TASK,
   UPDATE_TASK_STATUS,
 } from "../../services/endPoints";
-import { getMediaDetails, getUserId } from "../../utils/utils";
-import dayjs from "dayjs";
+import { defaultTaskPayload, formatData } from "../../utils/utils";
+import toast from "react-hot-toast";
 
 const initialState = {
   team: {},
   tasks: [],
   comments: [],
   totalCount: 0,
-  filterData: {
-    // TaskStatus : "",
-    // Priority : "",
-    // UserIds : [],
-    // FromDueDate : "",
-    // ToDueDate : "",
-  },
+  filterData: {},
   loading: false,
   error: null,
 };
@@ -49,61 +44,14 @@ export const fetchTasks = createAsyncThunk(
   }
 );
 
-const formatData = async (payload) => {
-
-  let mediaDetails = {
-    MultimediaData: "",
-    MultimediaExtension: "",
-    MultimediaFileName: "",
-    MultimediaType: "",
-  };
-
-  if (payload?.file) {
-    try {
-      mediaDetails = await getMediaDetails(payload.file);
-      console.log("FILE : ", payload?.file, mediaDetails)
-    } catch (error) {
-      console.error("Error processing media file:", error.message);
-    }
-  }
-  const obj = {
-    Id: "",
-    AssignedBy: getUserId(),
-    AssignedToUserId: "",
-    AssignedDate: "",
-    CompletedDate: "",
-    Description: payload?.Description || "",
-    IntercomGroupIds: [],
-    IsActive: true,
-    Latitude: "",
-    Location: "",
-    Longitude: "",
-    Image: mediaDetails.MultimediaData,
-    MultimediaData: mediaDetails.MultimediaData, 
-    MultimediaExtension: mediaDetails.MultimediaExtension,
-    MultimediaFileName: mediaDetails.MultimediaFileName,
-    MultimediaType: mediaDetails.MultimediaType,
-    Priority: payload?.Priority || "",
-    TaskEndDateDisplay: dayjs(payload?.TaskEndDate).format("DD MMM YYYY"),
-    TaskEndDate: payload?.TaskEndDate,
-    TaskDisplayOwners: `${payload?.TaskOwners?.length > 0 ? payload?.TaskOwners?.length + "Users" : ""}`,
-    TaskOwners: payload?.TaskOwners,
-    TaskStatus: "",
-    Title: payload?.Title,
-    UserDisplayIds: `${payload?.UserIds?.length > 0 ? payload?.UserIds?.length + "Users" : ""}`,
-    UserIds: payload?.UserIds || "",
-    LeadId: payload?.LeadId?.id || "",
-  };
-  return obj;
-};
-
 export const addTask = createAsyncThunk(
   "task/addTask",
   async (payload, { dispatch }) => {
     try {
       const data = await formatData(payload);
-      // await privateRequest.post("/addtask", payload);
-      console.log("Payload", payload, data);
+      await privateRequest.post(ADD_TASK, data);
+      toast.success("Task added successfully");
+      dispatch(fetchTasks(defaultTaskPayload));
     } catch (error) {
       console.log(error);
       throw error.response.data;
@@ -112,10 +60,13 @@ export const addTask = createAsyncThunk(
 );
 
 export const deleteTask = createAsyncThunk(
-  "task/addTask",
+  "task/deleteTask",
   async (taskId, { dispatch }) => {
     try {
       await privateRequest.get(DELETE_TASK + `?taskId=${taskId}`);
+      
+      toast.success("Task Deleted successfully");
+      dispatch(fetchTasks(defaultTaskPayload));
     } catch (error) {
       console.log(error);
       throw error.response.data;
@@ -128,6 +79,8 @@ export const updateTaskStatus = createAsyncThunk(
   async (data, { dispatch }) => {
     try {
       await privateRequest.post(UPDATE_TASK_STATUS, data);
+      toast.success("Task Status updated successfully");
+      dispatch(fetchTasks(defaultTaskPayload));
     } catch (error) {
       console.log(error);
       throw error.response.data;
@@ -158,7 +111,40 @@ const taskSlice = createSlice({
       .addCase(fetchTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      });
+      })
+      .addCase(addTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addTask.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(addTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(deleteTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteTask.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(deleteTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updateTaskStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateTaskStatus.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateTaskStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
   },
 });
 

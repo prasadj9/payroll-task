@@ -7,7 +7,6 @@ const useLeadMembers = () => {
   const [error, setError] = useState(null); 
 
   useEffect(() => {
-    console.log("Mounted")
     const fetchLeadMembers = async () => {
       try {
         const response = await privateRequest.post("/CRM/Leads", {
@@ -20,7 +19,6 @@ const useLeadMembers = () => {
             id: member.Id,
             label: member.LeadName,
           }));
-          console.log("Lead", simplifiedMembers)
         setLeadMembers(simplifiedMembers || []); 
       } catch (err) {
         setError(err);

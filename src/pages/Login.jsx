@@ -8,10 +8,7 @@ import {
 } from "@mui/material";
 import styles from "./Login.module.scss";
 import { useForm } from "react-hook-form";
-import { publicRequest } from "../services/publicRequest";
-import { useNavigate } from "react-router-dom";
-import { PATH } from "./../utils/pagePath";
-import toast from "react-hot-toast";
+import useLogin from "../hooks/useLogin";
 
 const Login = () => {
   const {
@@ -20,32 +17,10 @@ const Login = () => {
     reset,
     formState: { errors, isSubmitting },
   } = useForm();
-  const navigate = useNavigate();
+  const {userLogin} = useLogin();
   const onSubmit = async (data) => {
-    try {
-      const res = await publicRequest.post("/account/authenticate", data);
-      if (res.data.success) {
-        // Combine them into a string 'username:password'
-        const combined = `${data.username}:${data.password}`;
-
-        // Base64 encode the combined string
-        const base64Encoded = btoa(combined);
-        localStorage.setItem("token", base64Encoded);
-        const userDetail = res.data?.userDetail?.data;
-        localStorage.setItem("userId", userDetail?.UserId);
-        localStorage.setItem("userName", userDetail?.Name);
-        localStorage.setItem("userEmail", userDetail?.Email);
-        localStorage.setItem("userImage", userDetail?.UserImage);
-        toast.success("LoggedIn successfully");
-        navigate(PATH.DASHBOARD);
-      }
-      reset();
-    } catch (error) {
-      toast.error("Failed To login");
-    }
+    await userLogin(data, reset);
   };
-
-  console.log(import.meta.env.VITE_API_BASE_URL + "URL");
 
   return (
     <Container className={styles.container}>

@@ -14,19 +14,27 @@ const MyTask = () => {
     setSearchTerm(event.target.value);
   };
 
-
   return (
     <div style={{ width: "100%" }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" m={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        m={2}
+      >
         <FilterButton />
-        <Stack direction="row" gap={2}>
-          <TextField label="Search" variant="standard" value={searchTerm}
-          onChange={handleSearchChange}   />
+        <Stack direction="row" gap={2} alignItems="center">
+          <TextField
+            label="Search"
+            variant="standard"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <AddTaskForm />
         </Stack>
-        <AddTaskForm/>
       </Stack>
-        <AppliedFilters/>
-      <TaskTable search={debounceSearch}/>
+      <AppliedFilters />
+      <TaskTable search={debounceSearch} />
     </div>
   );
 };

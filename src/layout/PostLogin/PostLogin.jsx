@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { clearToken, getUserEmail, getUserImage, getUserName } from "../../utils/utils";
 
 function CustomAppTitle() {
+  console.log("App")
   return (
     <Stack direction="row" alignItems="center" spacing={2}>
       <CloudCircleIcon fontSize="large" color="primary" />
@@ -55,7 +56,7 @@ const PostLogin = () => {
       <ReactRouterAppProvider navigation={sideBarNavigation} session={session} authentication={authentication} theme={theme}>
         <DashboardLayout
           slotProps={{
-            appTitle: CustomAppTitle,
+            appTitle : CustomAppTitle
           }}
         >
           <Outlet />

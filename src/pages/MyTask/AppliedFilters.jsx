@@ -29,6 +29,7 @@ const AppliedFilters = () => {
   };
 
   return (
+    Object.values(filters).length > 0 ? (
     <Box
       sx={{
         p: 2,
@@ -40,7 +41,6 @@ const AppliedFilters = () => {
         gap: 2,
       }}
     >
-      {Object.values(filters).length > 0 && (
         <Stack direction="row" flexWrap="wrap" gap={1}>
           {filters[TASKSTATUS] && (
             <Chip
@@ -84,8 +84,7 @@ const AppliedFilters = () => {
             Clear Filter
           </Button>
         </Stack>
-      )}
-    </Box>
+    </Box>) : null
   );
 };
 

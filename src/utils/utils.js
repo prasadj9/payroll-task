@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const getToken = () => {
   return localStorage.getItem("token");
 };
@@ -68,7 +70,6 @@ export const getMediaDetails = (mediaFile) => {
 
 export const priorityOptions = [
   { label: "Low", value: "Low" },
-  { label: "Medium", value: "Medium" },
   { label: "High", value: "High" },
 ];
 
@@ -79,3 +80,67 @@ export const statusOptions = [
   { label: "Accepted", value: "Accepted" },
   { label: "Completed", value: "Completed" },
 ];
+
+export const defaultTaskPayload = {
+  From: 1,
+  To: 10,
+  Title: "",
+  UserId: getUserId(),
+  IsArchive: false,
+  UserIds: "",
+  Priority: "",
+  TaskStatus: "",
+  FromDueDate: "",
+  ToDueDate: "",
+  SortByDueDate: "",
+  SortColumn: "",
+  SortOrder: "",
+};
+
+export const formatData = async (payload) => {
+  let mediaDetails = {
+    MultimediaData: "",
+    MultimediaExtension: "",
+    MultimediaFileName: "",
+    MultimediaType: "",
+  };
+
+  if (payload?.file) {
+    try {
+      mediaDetails = await getMediaDetails(payload.file);
+    } catch (error) {
+      console.error("Error processing media file:", error.message);
+    }
+  }
+  const userIds = payload?.UserIds?.map((user) => user?.UserId);
+  const obj = {
+    Id: "",
+    AssignedBy: getUserId(),
+    AssignedToUserId: "",
+    AssignedDate: "",
+    CompletedDate: "",
+    Description: payload?.Description || "",
+    IntercomGroupIds: [],
+    IsActive: true,
+    Latitude: "",
+    Location: "",
+    Longitude: "",
+    Image: mediaDetails.MultimediaData,
+    MultimediaData: mediaDetails.MultimediaData,
+    MultimediaExtension: mediaDetails.MultimediaExtension,
+    MultimediaFileName: mediaDetails.MultimediaFileName,
+    MultimediaType: mediaDetails.MultimediaType,
+    Priority: payload?.priority || "",
+    TaskEndDateDisplay: payload?.TaskEndDate,
+    TaskEndDate:
+      dayjs(payload?.TaskEndDate).format("DD MMM YYYY") + " 12:00 AM",
+    TaskDisplayOwners: `${payload?.TaskOwners?.length > 0 ? payload?.TaskOwners?.length + "Users" : ""}`,
+    TaskOwners: payload?.TaskOwners || [],
+    TaskStatus: "",
+    Title: payload?.Title,
+    UserDisplayIds: `${payload?.UserIds?.length > 0 ? payload?.UserIds?.length + "Users" : ""}`,
+    UserIds: userIds || "",
+    LeadId: payload?.LeadId || "",
+  };
+  return obj;
+};

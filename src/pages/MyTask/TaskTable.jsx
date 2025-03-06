@@ -26,7 +26,7 @@ const rowsPerPage = [10, 25, 50, 100];
 const TaskTable = ({ search }) => {
   const dispatch = useDispatch();
   const { filterData } = useSelector((state) => state.task);
-  const { tasks, totalCount } = useSelector((state) => state.task);
+  const { tasks, totalCount, loading } = useSelector((state) => state.task);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [sortModel, setSortModel] = useState([]);
@@ -98,6 +98,8 @@ const TaskTable = ({ search }) => {
       field: "Title",
       headerName: "Title",
       sortable: false,
+      minWidth: 100,
+      flex : 1,
       renderCell: (params) => (
         <span style={{ color: "blue" }}>{params.row.Title}</span>
       ),
@@ -106,6 +108,8 @@ const TaskTable = ({ search }) => {
       field: "LeadName",
       headerName: "Customer Name",
       sortable: false,
+      minWidth: 100,
+      flex : 1,
       renderCell: (params) => (
         <span style={{ color: "blue" }}>{params.row.LeadName || "-"}</span>
       ),
@@ -115,18 +119,24 @@ const TaskTable = ({ search }) => {
       field: "createDate",
       headerName: "Assigned Date",
       sortable: true,
+      minWidth: 100,
+      flex : 1,
       renderCell: (params) => formatDate(params.row.CreateDate),
     },
     {
       field: "TaskEndDate",
       headerName: "Due Date",
       sortable: true,
+      flex : 1,
+      minWidth: 100,
       renderCell: (params) => formatDate(params.row.TaskEndDate),
     },
     { field: "Priority", headerName: "Priority", sortable: false },
     {
       field: "Status",
       headerName: "Status",
+      flex : 1,
+      minWidth: 100,
       sortable: false,
       renderCell: (params) => (
         <span style={{ color: getStatus(params.row.TaskStatus).color }}>
@@ -137,7 +147,7 @@ const TaskTable = ({ search }) => {
     {
       field: "",
       headerName: "Action",
-      width: 100,
+      minWidth: 250,
       flex: 1,
       renderCell: (params) => {
         const isTaskPartial =
@@ -206,20 +216,43 @@ const TaskTable = ({ search }) => {
   };
 
   return (
-    <Paper>
-      <PartialCompleteModal />
+    <Paper sx={{ width: "100%", overflowX: "auto" }}>
       <DataGrid
         columns={columns}
         rows={tasks}
         rowCount={totalCount}
         paginationMode="server"
-        loading={!tasks?.length}
+        loading={loading}
         getRowId={(row) => row?.TaskId}
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         pageSizeOptions={rowsPerPage}
         sortingMode="server"
         onSortModelChange={handleSortModelChange}
+        sx={{
+          fontSize: "14px",
+          "& .MuiDataGrid-root": {
+            overflowX: "auto", // Handle horizontal overflow
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            fontSize: "14px",
+            "@media (max-width: 600px)": {
+              fontSize: "12px", // Adjust font size for smaller screens
+            },
+          },
+          "& .MuiDataGrid-cell": {
+            display: "flex",
+            justifyContent: "left",
+            fontSize: "13px",
+            "@media (max-width: 600px)": {
+              fontSize: "11px", // Adjust cell font size
+            },
+          },
+          '& .MuiDataGrid-row:hover': {
+            cursor: 'pointer'
+          },
+          "--DataGrid-overlayHeight": "300px",
+        }}
       />
       <PartialCompleteModal
         isOpen={isPartialTaskModalOpen}
