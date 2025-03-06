@@ -23,26 +23,35 @@ import CustomSelect from "../../components/CustomSelect";
 import { priorityOptions } from "../../utils/utils";
 import toast from "react-hot-toast";
 import MembersList from "./MembersList";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { addTask } from "../../store/slices/taskSlice";
 import useLeadMembers from "../../hooks/useLeads";
 
 const AddTaskForm = () => {
   const [open, setOpen] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
-  const { control, register, handleSubmit, reset, setValue, watch, formState : {errors} } = useForm();
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm();
   const [fileName, setFileName] = useState("");
   const dispatch = useDispatch();
   const [file, setFile] = useState(null);
   const fileAttachmentRef = useRef(null);
-  const {leadMembers} = useLeadMembers();
+  const { leadMembers } = useLeadMembers();
 
   const [usersModal, setUsersModal] = useState({ open: false, type: null });
 
   const handleTabChange = (event, newIndex) => {
     setTabIndex(newIndex);
   };
-  const handleCloseModal = () => {
+  const handleCloseModal = (e, reason) => {
+    if (reason && reason === "backdropClick") return;
     setOpen(false);
   };
 
@@ -70,9 +79,14 @@ const AddTaskForm = () => {
   };
 
   const onSubmit = async (values) => {
-    dispatch(addTask({...values, file}))
-    reset();
-    handleCloseModal();
+    try {
+      await dispatch(addTask({ ...values, file }));
+    } catch (error) {
+      toast.error(error?.message || "Something went wrong");
+    } finally {
+      reset();
+      handleCloseModal();
+    }
   };
   return (
     <div>
@@ -144,13 +158,15 @@ const AddTaskForm = () => {
               margin="normal"
               variant="standard"
               error={!!errors.Title}
-              helperText={errors.Title?.message}    
+              helperText={errors.Title?.message}
               required
             />
             <TextField
               fullWidth
               label="Description"
-              {...register("Description", {required: "Description is required"})}
+              {...register("Description", {
+                required: "Description is required",
+              })}
               margin="normal"
               variant="standard"
               required
@@ -212,12 +228,20 @@ const AddTaskForm = () => {
                     control={control}
                     render={({ field }) => (
                       <Autocomplete
-                      {...field}
-                      options={leadMembers}
-                      getOptionKey={(option) => option.id}
-                      onChange={(_, newValue) => field.onChange(newValue ? newValue.id : null)}
-                      renderInput={(params) => <TextField {...params} variant="standard" label="Lead/Customer Name" />}
-                    />
+                        {...field}
+                        options={leadMembers}
+                        getOptionKey={(option) => option.id}
+                        onChange={(_, newValue) =>
+                          field.onChange(newValue ? newValue.id : null)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label="Lead/Customer Name"
+                          />
+                        )}
+                      />
                     )}
                   />
                 </FormControl>
@@ -237,8 +261,14 @@ const AddTaskForm = () => {
                       format="DD MMM YYYY"
                       minDate={dayjs()}
                       sx={{ flex: 1 }}
-                      slotProps={{ textField: { variant: "standard", error: !!error,
-                        helperText: error ? error.message : "", required : true } }}
+                      slotProps={{
+                        textField: {
+                          variant: "standard",
+                          error: !!error,
+                          helperText: error ? error.message : "",
+                          required: true,
+                        },
+                      }}
                     />
                   )}
                 />
@@ -251,7 +281,6 @@ const AddTaskForm = () => {
                 control={control}
                 options={priorityOptions}
               />
-
             </Box>
 
             {/* Members */}
@@ -311,6 +340,7 @@ const AddTaskForm = () => {
                 onClick={handleSubmit(onSubmit)}
                 variant="contained"
                 color="primary"
+                disabled={isSubmitting}
               >
                 Add
               </Button>

@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 const PreLogin = () => {
   return (
     <div>
-      <Suspense fallback={"Loading"}>
+      <Suspense>
         <Outlet />
       </Suspense>
     </div>
